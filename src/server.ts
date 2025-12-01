@@ -5,11 +5,16 @@ import path from "path";
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 const app = express();
 const port = 5000;
+//for parsing json data
+app.use(express.json());
+// app.use(express.urlencoded())
 
+//creating a pool
 const pool = new Pool({
   connectionString: `${process.env.CONNECTION_STR}`,
 });
 
+//create table into DB
 const initDB = async () => {
   await pool.query(`
         CREATE TABLE IF NOT EXISTS users(
@@ -39,12 +44,13 @@ const initDB = async () => {
 
 initDB();
 
-app.use(express.json());
-// app.use(express.urlencoded())
+//root route
 app.get("/", (req: Request, res: Response) => {
   res.send("Hello Next level developers");
 });
-app.post("/", async (req, res) => {
+
+//post users
+app.post("/users", async (req, res) => {
   const { name, email } = req.body;
   try {
     const result = await pool.query(
@@ -64,6 +70,53 @@ app.post("/", async (req, res) => {
     });
   }
 });
+
+//get users
+app.get("/users", async (req: Request, res: Response) => {
+  try {
+    const result = await pool.query(`SELECT * FROM users`);
+    res.status(200).json({
+      success: true,
+      message: "Users retrieved successfully",
+      data: result.rows,
+    });
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      details: err,
+    });
+  }
+});
+//get single user
+app.get("/users/:id", async (req: Request, res: Response) => {
+  console.log(req.params);
+  try {
+    const result = await pool.query(`SELECT * FROM users WHERE ID=$1`, [
+      req.params.id,
+    ]);
+    if (result.rows.length === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "User fetched successfully",
+        data: result.rows[0],
+      });
+    }
+   
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+  res.send({ message: "API is cool" });
+});
+//for app listen
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
