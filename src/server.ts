@@ -49,6 +49,9 @@ app.get("/", (req: Request, res: Response) => {
   res.send("Hello Next level developers");
 });
 
+/* ====================
+    USER CRUD START
+=======================*/
 //post users
 app.post("/users", async (req, res) => {
   const { name, email } = req.body;
@@ -113,7 +116,6 @@ app.get("/users/:id", async (req: Request, res: Response) => {
       message: err.message,
     });
   }
-  res.send({ message: "API is cool" });
 });
 //update a user
 app.put("/users/:id", async (req: Request, res: Response) => {
@@ -144,6 +146,40 @@ app.put("/users/:id", async (req: Request, res: Response) => {
   }
   res.send({ message: "API is cool" });
 });
+
+//delete a user
+app.delete("/users/:id", async (req: Request, res: Response) => {
+  console.log(req.params);
+  try {
+    const result = await pool.query(`DELETE FROM users WHERE ID=$1`, [
+      req.params.id,
+    ]);
+    if (result.rowCount === 0) {
+      res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        message: "User deleted successfully",
+        data: result.rows,
+      });
+    }
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+});
+/* ================
+    USER CRUD END
+===================*/
+
+/* ====================
+    USER CRUD START
+=======================*/
 //for app listen
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
