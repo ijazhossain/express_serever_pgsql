@@ -5,6 +5,7 @@ import path from "path";
 import config from "./config";
 import initDB, { pool } from "./config/db";
 import { userRoutes } from "./modules/user/user.route";
+import { authRoutes } from "./modules/auth/auth.routes";
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 const app = express();
 const port = config.port;
@@ -20,9 +21,10 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 //user route
-app.use("/users", userRoutes);
+app.use("/users", authRoutes);
 
-
+//auth routes
+app.use("/auth",)
 //POST A TODO
 app.post("/todos", async (req: Request, res: Response) => {
   const { user_id, title } = req.body;
