@@ -21,10 +21,10 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 //user route
-app.use("/users", authRoutes);
+app.use("/users", userRoutes);
 
 //auth routes
-app.use("/auth",)
+app.use("/auth",authRoutes)
 //POST A TODO
 app.post("/todos", async (req: Request, res: Response) => {
   const { user_id, title } = req.body;
